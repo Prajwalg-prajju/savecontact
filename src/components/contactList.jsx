@@ -1,8 +1,8 @@
 import React from "react";
-import ContactCard from "./contactCard.jsx";  // same folder
-import "../css/style.css";              // css folder is in parent (src/css)
+import ContactCard from "./contactCard.jsx";
+import "../css/style.css";
 
- const contacts = [
+const contacts = [
   {
     name: "Rahul Sharma",
     phone: "+919876543210",
@@ -20,7 +20,6 @@ import "../css/style.css";              // css folder is in parent (src/css)
     address: "123, MG Road, Mumbai, Maharashtra, India",
   },
 ];
-
 
 const ContactList = () => (
   <div className="card-list-container">
