@@ -2,7 +2,27 @@ import React from "react";
 import "../css/style.css";
 
 const ContactCard = ({ contact }) => {
-  const saveContact = () => {
+
+  // ✅ Convert local image to Base64 for vCard
+  const toBase64 = async (fileUrl) => {
+    if (!fileUrl) return "";
+
+    const response = await fetch(fileUrl);
+    const blob = await response.blob();
+
+    return new Promise((resolve) => {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const base64 = reader.result.split(",")[1];
+        resolve(base64);
+      };
+      reader.readAsDataURL(blob);
+    });
+  };
+
+  const saveContact = async () => {
+    const photoBase64 = await toBase64(contact.image);
+
     const vCardData = `
 BEGIN:VCARD
 VERSION:3.0
@@ -15,12 +35,13 @@ EMAIL:${contact.email || ""}
 URL:${contact.website || ""}
 ADR;TYPE=HOME:${contact.address || ""}
 NOTE:${contact.notes || ""}
+${photoBase64 ? `PHOTO;ENCODING=b;TYPE=JPEG:${photoBase64}` : ""}
 X-SOCIALPROFILE;type=linkedin:${contact.linkedin || ""}
 X-SOCIALPROFILE;type=facebook:${contact.facebook || ""}
 X-SOCIALPROFILE;type=instagram:${contact.instagram || ""}
 X-SOCIALPROFILE;type=twitter:${contact.twitter || ""}
 END:VCARD
-    `.trim();
+`.trim();
 
     const blob = new Blob([vCardData], {
       type: "text/vcard;charset=utf-8;",
@@ -28,7 +49,8 @@ END:VCARD
 
     const url = window.URL.createObjectURL(blob);
 
-    // ✅ Mobile + Desktop compatible auto trigger
+    // ✅ Android: download → open contacts
+    // ✅ iPhone: direct save popup
     const link = document.createElement("a");
     link.href = url;
     link.setAttribute("download", `${contact.name}.vcf`);

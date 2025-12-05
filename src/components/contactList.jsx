@@ -1,13 +1,14 @@
 import React from "react";
 import ContactCard from "./contactCard.jsx";
 import "../css/style.css";
+import profileImg from "../assets/chat.jpg";
 
 const contacts = [
   {
     name: "Rahul Sharma",
     phone: "+919876543210",
     email: "rahul@gmail.com",
-    image: "https://i.pravatar.cc/300",
+    image: profileImg,
     whatsapp: "https://wa.me/919876543210",
     website: "https://rahulportfolio.com",
     linkedin: "https://linkedin.com/in/rahulsharma",
