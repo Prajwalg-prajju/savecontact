@@ -21,9 +21,9 @@ const ContactCard = ({ contact }) => {
   };
 
   const saveContact = async () => {
-    const photoBase64 = await toBase64(contact.image);
+  const photoBase64 = await toBase64(contact.image);
 
-    const vCardData = `
+  const vCardData = `
 BEGIN:VCARD
 VERSION:3.0
 N:${contact.name}
@@ -43,21 +43,26 @@ X-SOCIALPROFILE;type=twitter:${contact.twitter || ""}
 END:VCARD
 `.trim();
 
-    const blob = new Blob([vCardData], {
-      type: "text/vcard;charset=utf-8;",
-    });
+  const encodedVCard = encodeURIComponent(vCardData);
 
+  const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
+
+  if (isIOS) {
+    // ✅ ✅ THIS IS THE ONLY METHOD THAT WORKS IN iOS CHROME
+    const dataUrl = `data:text/vcard;charset=utf-8,${encodedVCard}`;
+    window.location.href = dataUrl;
+  } else {
+    // ✅ Works for Android Chrome, Desktop, Safari
+    const blob = new Blob([vCardData], { type: "text/vcard" });
     const url = window.URL.createObjectURL(blob);
+    window.open(url, "_blank");
 
-    // ✅ Android: download → open contacts
-    // ✅ iPhone: direct save popup
-    const link = document.createElement("a");
-    link.href = url;
-    link.setAttribute("download", `${contact.name}.vcf`);
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  };
+    setTimeout(() => {
+      window.URL.revokeObjectURL(url);
+    }, 2000);
+  }
+};
+
 
   return (
     <div className="contact-card">
