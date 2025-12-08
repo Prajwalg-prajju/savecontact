@@ -1,7 +1,8 @@
-import React from "react";
+import React, { useState } from "react";
 import "../css/style.css";
 
 const ContactCard = ({ contact }) => {
+  const [savedMsg, setSavedMsg] = useState("");
 
   // ✅ Convert local image to Base64 for vCard
   const toBase64 = async (fileUrl) => {
@@ -21,27 +22,28 @@ const ContactCard = ({ contact }) => {
   };
 
   const saveContact = async () => {
+    try {
     const photoBase64 = await toBase64(contact.image);
 
     const vCardData = `
-BEGIN:VCARD
-VERSION:3.0
-N:${contact.name}
-FN:${contact.name}
-ORG:${contact.company || ""}
-TITLE:${contact.jobTitle || ""}
-TEL;TYPE=CELL:${contact.phone}
-EMAIL:${contact.email || ""}
-URL:${contact.website || ""}
-ADR;TYPE=HOME:${contact.address || ""}
-NOTE:${contact.notes || ""}
-${photoBase64 ? `PHOTO;ENCODING=b;TYPE=JPEG:${photoBase64}` : ""}
-X-SOCIALPROFILE;type=linkedin:${contact.linkedin || ""}
-X-SOCIALPROFILE;type=facebook:${contact.facebook || ""}
-X-SOCIALPROFILE;type=instagram:${contact.instagram || ""}
-X-SOCIALPROFILE;type=twitter:${contact.twitter || ""}
-END:VCARD
-`.trim();
+      BEGIN:VCARD
+      VERSION:3.0
+      N:${contact.name}
+      FN:${contact.name}
+      ORG:${contact.company || ""}
+      TITLE:${contact.jobTitle || ""}
+      TEL;TYPE=CELL:${contact.phone}
+      EMAIL:${contact.email || ""}
+      URL:${contact.website || ""}
+      ADR;TYPE=HOME:${contact.address || ""}
+      NOTE:${contact.notes || ""}
+      ${photoBase64 ? `PHOTO;ENCODING=b;TYPE=JPEG:${photoBase64}` : ""}
+      X-SOCIALPROFILE;type=linkedin:${contact.linkedin || ""}
+      X-SOCIALPROFILE;type=facebook:${contact.facebook || ""}
+      X-SOCIALPROFILE;type=instagram:${contact.instagram || ""}
+      X-SOCIALPROFILE;type=twitter:${contact.twitter || ""}
+      END:VCARD
+    `.trim();
 
     const blob = new Blob([vCardData], {
       type: "text/vcard;charset=utf-8;",
@@ -57,6 +59,21 @@ END:VCARD
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+
+    
+      // ✅ ✅ SUCCESS MESSAGE
+      setSavedMsg("✅ Contact saved successfully!");
+
+      // ✅ Auto hide after 2 seconds
+      setTimeout(() => {
+        setSavedMsg("");
+      }, 2000);
+
+    } catch (error) {
+      console.error(error);
+      setSavedMsg("❌ Failed to save contact");
+    }
+    
   };
 
   return (
@@ -108,7 +125,10 @@ END:VCARD
 
       <div className="contact-actions">
         <button onClick={saveContact}>Save Contact</button>
+
+        {savedMsg && <p className="save-msg">{savedMsg}</p>}
       </div>
+
     </div>
   );
 };
