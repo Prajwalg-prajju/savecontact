@@ -1,8 +1,7 @@
-import React, { useState } from "react";
+import React from "react";
 import "../css/style.css";
 
 const ContactCard = ({ contact }) => {
-  const [savedMsg, setSavedMsg] = useState("");
 
   // ✅ Convert local image to Base64 for vCard
   const toBase64 = async (fileUrl) => {
@@ -22,7 +21,6 @@ const ContactCard = ({ contact }) => {
   };
 
   const saveContact = async () => {
-    try {
     const photoBase64 = await toBase64(contact.image);
 
     const vCardData = `
@@ -59,21 +57,6 @@ const ContactCard = ({ contact }) => {
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
-
-    
-      // ✅ ✅ SUCCESS MESSAGE
-      setSavedMsg("✅ Contact saved successfully!");
-
-      // ✅ Auto hide after 2 seconds
-      setTimeout(() => {
-        setSavedMsg("");
-      }, 2000);
-
-    } catch (error) {
-      console.error(error);
-      setSavedMsg("❌ Failed to save contact");
-    }
-    
   };
 
   return (
@@ -125,10 +108,7 @@ const ContactCard = ({ contact }) => {
 
       <div className="contact-actions">
         <button onClick={saveContact}>Save Contact</button>
-
-        {savedMsg && <p className="save-msg">{savedMsg}</p>}
       </div>
-
     </div>
   );
 };
