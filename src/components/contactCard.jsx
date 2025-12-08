@@ -21,43 +21,51 @@ const ContactCard = ({ contact }) => {
   };
 
   const saveContact = async () => {
+  try {
     const photoBase64 = await toBase64(contact.image);
 
-    const vCardData = `
-      BEGIN:VCARD
-      VERSION:3.0
-      N:${contact.name}
-      FN:${contact.name}
-      ORG:${contact.company || ""}
-      TITLE:${contact.jobTitle || ""}
-      TEL;TYPE=CELL:${contact.phone}
-      EMAIL:${contact.email || ""}
-      URL:${contact.website || ""}
-      ADR;TYPE=HOME:${contact.address || ""}
-      NOTE:${contact.notes || ""}
-      ${photoBase64 ? `PHOTO;ENCODING=b;TYPE=JPEG:${photoBase64}` : ""}
-      X-SOCIALPROFILE;type=linkedin:${contact.linkedin || ""}
-      X-SOCIALPROFILE;type=facebook:${contact.facebook || ""}
-      X-SOCIALPROFILE;type=instagram:${contact.instagram || ""}
-      X-SOCIALPROFILE;type=twitter:${contact.twitter || ""}
-      END:VCARD
-    `.trim();
+    const vCardData =
+`BEGIN:VCARD
+VERSION:3.0
+N:${contact.name};;;
+FN:${contact.name}
+ORG:${contact.company || ""}
+TITLE:${contact.jobTitle || ""}
+TEL;TYPE=CELL:${contact.phone}
+EMAIL:${contact.email || ""}
+URL:${contact.website || ""}
+ADR;TYPE=HOME:;;${contact.address || ""};;;
+NOTE:${contact.notes || ""}
+${photoBase64 ? `PHOTO;ENCODING=b;TYPE=JPEG:${photoBase64}` : ""}
+X-SOCIALPROFILE;TYPE=linkedin:${contact.linkedin || ""}
+X-SOCIALPROFILE;TYPE=facebook:${contact.facebook || ""}
+X-SOCIALPROFILE;TYPE=instagram:${contact.instagram || ""}
+X-SOCIALPROFILE;TYPE=twitter:${contact.twitter || ""}
+END:VCARD`;
 
     const blob = new Blob([vCardData], {
-      type: "text/vcard;charset=utf-8;",
+      type: "text/x-vcard", // ✅ ANDROID SAFE
     });
 
     const url = window.URL.createObjectURL(blob);
 
-    // ✅ Android: download → open contacts
-    // ✅ iPhone: direct save popup
+    // ✅ UNIVERSAL METHOD
     const link = document.createElement("a");
     link.href = url;
-    link.setAttribute("download", `${contact.name}.vcf`);
+    link.download = `${contact.name}.vcf`;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
-  };
+
+    // ✅ CLEANUP
+    setTimeout(() => window.URL.revokeObjectURL(url), 2000);
+
+  } catch (err) {
+    alert("Failed to create contact file");
+    console.error(err);
+  }
+};
+
 
   return (
     <div className="contact-card">
